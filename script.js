@@ -271,7 +271,7 @@ const BASEMAPS = {
 };
 
 let currentBase = null;
-let basemapMode = 'auto'; // 'auto' (يتبع الثيم) | 'satellite'
+let basemapMode = 'satellite'; // 'auto' (يتبع الثيم) | 'satellite'
 
 function resolveBase() {
   if (basemapMode === 'satellite') return 'satellite';
@@ -283,6 +283,7 @@ function applyBasemap() {
   Object.values(BASEMAPS).forEach(l => map.hasLayer(l) && map.removeLayer(l));
   currentBase = BASEMAPS[which];
   currentBase.addTo(map);
+  document.getElementById('basemapToggle').classList.toggle('is-active', basemapMode === 'satellite');
 }
 
 function initTheme() {
@@ -304,7 +305,6 @@ function toggleTheme() {
 }
 function toggleBasemap() {
   basemapMode = basemapMode === 'satellite' ? 'auto' : 'satellite';
-  document.getElementById('basemapToggle').classList.toggle('is-active', basemapMode === 'satellite');
   applyBasemap();
   showToast(basemapMode === 'satellite' ? 'الخريطة: قمر صناعي' : 'الخريطة: مبسّطة', 'fa-layer-group');
 }
