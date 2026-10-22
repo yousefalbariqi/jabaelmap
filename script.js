@@ -287,7 +287,7 @@ function applyBasemap() {
 
 function initTheme() {
   const saved = localStorage.getItem('theme');
-  const theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  const theme = saved === 'dark' ? 'dark' : 'light';
   document.documentElement.dataset.theme = theme;
   updateThemeIcon(theme);
 }
