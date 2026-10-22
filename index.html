@@ -17,7 +17,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
 
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=20261022-compact-controls">
 </head>
 <body>
 
@@ -28,16 +28,10 @@
   <div class="top-right floating">
     <div class="app-brand">
       <img src="association-logo.jpg" alt="جمعية مساجد للعناية بالمساجد بالجبيل" class="app-brand__logo">
-      <div class="app-brand__text">
-        <span class="app-brand__title">خريطة مساجد الجمعية</span>
-        <span class="app-brand__sub">جمعية مساجد للعناية بالمساجد بالجبيل</span>
-      </div>
-    </div>
-
-    <div class="search-panel">
+      <div class="search-panel">
       <div class="search-pill" role="combobox" aria-expanded="false" aria-owns="acList" aria-haspopup="listbox">
         <i class="fas fa-search search-pill__icon" aria-hidden="true"></i>
-        <input type="text" id="searchInput" placeholder="ابحث باسم المسجد أو الحي…"
+        <input type="text" id="searchInput" placeholder="اسم المسجد أو الحي…"
                autocomplete="off" aria-autocomplete="list" aria-controls="acList" aria-label="بحث">
         <button class="search-clear" id="searchClear" aria-label="مسح البحث" hidden>
           <i class="fas fa-times" aria-hidden="true"></i>
@@ -50,6 +44,7 @@
         <button class="seg-btn" data-cat="mosque" role="radio" aria-checked="false">مساجد</button>
         <button class="seg-btn" data-cat="jamie"  role="radio" aria-checked="false">جوامع</button>
         <button hidden class="seg-btn" data-cat="land"   role="radio" aria-checked="false">أرضي مخصصة</button>
+      </div>
       </div>
     </div>
   </div>
@@ -113,10 +108,10 @@
     <div class="detail-body" id="detailBody"><!-- تُملأ ديناميكياً --></div>
   </aside>
 
-  <!-- مفتاح الخريطة (أسفل اليسار) -->
-  <div class="legend floating" id="legend">
-    <button class="legend-toggle" id="legendToggle" aria-label="عرض المفتاح" aria-expanded="true">
-      <i class="fas fa-map-signs" aria-hidden="true"></i> المفتاح
+  <!-- مفتاح الخريطة (أسفل اليمين) -->
+  <div class="legend floating is-collapsed" id="legend">
+    <button class="legend-toggle tool-btn" id="legendToggle" aria-label="عرض المفتاح" title="مفتاح الخريطة" aria-controls="legendItems" aria-expanded="false">
+      <i class="fas fa-sliders" aria-hidden="true"></i>
     </button>
     <div class="legend-items" id="legendItems">
       <button class="legend-item" data-cat="mosque" aria-pressed="false">
@@ -147,6 +142,6 @@
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-  <script src="script.js?v=20261022-satellite-default"></script>
+  <script src="script.js?v=20261022-compact-controls"></script>
 </body>
 </html>
