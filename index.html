@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <title>جمعية مساجد | خريطة المساجد</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="جمعية مساجد للعناية بالمساجد بالجبيل — متابعة الإنجاز والأعمال المنجزة">
+
+  <!-- Leaflet + MarkerCluster -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+
+  <!-- Fonts + Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- الخريطة -->
+  <div id="map" role="application" aria-label="خريطة مساجد الجمعية"></div>
+
+  <!-- شارة الوزارة + لوحة البحث (أعلى اليمين) -->
+  <div class="top-right floating">
+    <div class="app-brand">
+      <img src="association-logo.jpg" alt="جمعية مساجد للعناية بالمساجد بالجبيل" class="app-brand__logo">
+      <div class="app-brand__text">
+        <span class="app-brand__title">خريطة مساجد الجمعية</span>
+        <span class="app-brand__sub">جمعية مساجد للعناية بالمساجد بالجبيل</span>
+      </div>
+    </div>
+
+    <div class="search-panel">
+      <div class="search-pill" role="combobox" aria-expanded="false" aria-owns="acList" aria-haspopup="listbox">
+        <i class="fas fa-search search-pill__icon" aria-hidden="true"></i>
+        <input type="text" id="searchInput" placeholder="ابحث باسم المسجد أو الحي…"
+               autocomplete="off" aria-autocomplete="list" aria-controls="acList" aria-label="بحث">
+        <button class="search-clear" id="searchClear" aria-label="مسح البحث" hidden>
+          <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
+      </div>
+      <ul class="autocomplete" id="acList" role="listbox" aria-label="اقتراحات البحث" hidden></ul>
+
+      <div class="segmented" id="categoryFilter" role="radiogroup" aria-label="تصفية حسب الفئة">
+        <button class="seg-btn is-active" data-cat="all"    role="radio" aria-checked="true">الكل</button>
+        <button class="seg-btn" data-cat="mosque" role="radio" aria-checked="false">مساجد</button>
+        <button class="seg-btn" data-cat="jamie"  role="radio" aria-checked="false">جوامع</button>
+        <button hidden class="seg-btn" data-cat="land"   role="radio" aria-checked="false">أرضي مخصصة</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- أدوات الخريطة (أعلى اليسار) -->
+  <div class="map-tools floating">
+    <button class="tool-btn" id="themeToggle" aria-label="تبديل الوضع الليلي" title="الوضع الليلي/النهاري">
+      <i class="fas fa-moon" aria-hidden="true"></i>
+    </button>
+    <button class="tool-btn" id="basemapToggle" aria-label="تبديل نوع الخريطة" title="نوع الخريطة">
+      <i class="fas fa-layer-group" aria-hidden="true"></i>
+    </button>
+    <button class="tool-btn" id="statsToggle" aria-label="عرض الإحصائيات" title="الإحصائيات" aria-expanded="false">
+      <i class="fas fa-chart-column" aria-hidden="true"></i>
+    </button>
+    <button hidden class="tool-btn" id="landsToggle" aria-label="الأراضي المخصصة" title="الأراضي المخصصة" aria-expanded="false">
+      <i class="fas fa-map-location-dot" aria-hidden="true"></i>
+    </button>
+    <button class="tool-btn" id="resetView" aria-label="عرض كل المواقع" title="عرض الكل">
+      <i class="fas fa-expand" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <!-- بطاقة الإحصائيات -->
+  <aside class="stats-card floating" id="statsCard" role="dialog" aria-labelledby="statsTitle" aria-modal="false" hidden>
+    <header class="panel-head">
+      <h2 class="panel-head__title" id="statsTitle"><i class="fas fa-chart-column" aria-hidden="true"></i> إحصائيات المواقع</h2>
+      <button class="icon-close" id="statsClose" aria-label="إغلاق">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </header>
+    <p class="stats-scope" id="statsScope">تعرض: الكل</p>
+    <div class="panel-actions">
+      <button class="chip-btn" id="statsScopeToggle" aria-pressed="false" title="حساب الإحصائيات للمنطقة الظاهرة فقط">
+        <i class="fas fa-crop-simple" aria-hidden="true"></i> النطاق المرئي
+      </button>
+      <button class="chip-btn" id="exportBtn" title="تصدير المواقع المعروضة إلى CSV">
+        <i class="fas fa-file-csv" aria-hidden="true"></i> تصدير CSV
+      </button>
+    </div>
+    <div class="kpi-grid" id="statsBody"><!-- تُملأ ديناميكياً --></div>
+  </aside>
+
+  <!-- لوحة الأراضي المخصصة -->
+  <aside class="stats-card lands-panel floating" id="landsPanel" role="dialog" aria-labelledby="landsTitle" aria-modal="false" hidden>
+    <header class="panel-head">
+      <h2 class="panel-head__title" id="landsTitle"><i class="fas fa-map-location-dot" aria-hidden="true"></i> الأراضي المخصصة</h2>
+      <button class="icon-close" id="landsClose" aria-label="إغلاق"><i class="fas fa-times" aria-hidden="true"></i></button>
+    </header>
+    <div class="panel-actions" id="landsFilter" role="group" aria-label="تصفية الأراضي">
+      <button class="chip-btn is-active" data-ls="all">الكل</button>
+      <button class="chip-btn" data-ls="متاحة">متاحة</button>
+      <button class="chip-btn" data-ls="محجوزة">محجوزة</button>
+      <button class="chip-btn" data-ls="قيد التخصيص">قيد التخصيص</button>
+    </div>
+    <div class="lands-list" id="landsList"><!-- تُملأ ديناميكياً --></div>
+  </aside>
+
+  <!-- لوحة التفاصيل (تنزلق من اليمين) -->
+  <aside class="detail-panel" id="detailPanel" role="dialog" aria-labelledby="dpTitle" aria-modal="true" hidden>
+    <div class="detail-body" id="detailBody"><!-- تُملأ ديناميكياً --></div>
+  </aside>
+
+  <!-- مفتاح الخريطة (أسفل اليسار) -->
+  <div class="legend floating" id="legend">
+    <button class="legend-toggle" id="legendToggle" aria-label="عرض المفتاح" aria-expanded="true">
+      <i class="fas fa-map-signs" aria-hidden="true"></i> المفتاح
+    </button>
+    <div class="legend-items" id="legendItems">
+      <button class="legend-item" data-cat="mosque" aria-pressed="false">
+        <span class="legend-dot" data-cat="mosque"></span><span>مساجد</span>
+      </button>
+      <button class="legend-item" data-cat="jamie" aria-pressed="false">
+        <span class="legend-dot" data-cat="jamie"></span><span>جوامع</span>
+      </button>
+      <button hidden class="legend-item" data-cat="land" aria-pressed="false">
+        <span class="legend-dot" data-cat="land"></span><span>أرضي مخصصة</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- تنبيهات -->
+  <div class="toast-wrap" id="toastWrap" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- شاشة التحميل -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-box">
+      <div class="spinner" aria-hidden="true"></div>
+      <p id="loadingText">جارٍ تحميل المواقع…</p>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
